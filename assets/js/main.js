@@ -1,53 +1,55 @@
-function validateForm(event) {
-    event.preventDefault();
-    let isValid = true;
-    let errorMessages = [];
+function validateField(field, minLength, errorMessage) {
+    field.classList.remove("error");
+    if (field.value.length < minLength) {
+        field.classList.add("error");
+        return errorMessage;
+    }
+    return "";
+}
 
+function validateEmail(field) {
+    field.classList.remove("error");
+    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(field.value)) {
+        field.classList.add("error");
+        return "Indtast en gyldig e-mailadresse.";
+    }
+    return "";
+}
+
+function validatePostnummer(field) {
+    field.classList.remove("error");
+    if (!/^[0-9]+$/.test(field.value)) {
+        field.classList.add("error");
+        return "Postnummer må kun indeholde tal.";
+    }
+    return "";
+}
+
+function validateForm() {
+    let errorMessages = [];
     let fornavn = document.getElementById("fornavn");
     let efternavn = document.getElementById("efternavn");
     let adresse = document.getElementById("adresse");
     let postnummer = document.getElementById("postnummer");
     let email = document.getElementById("email");
-    let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    fornavn.classList.remove("error");
-    efternavn.classList.remove("error");
-    adresse.classList.remove("error");
-    postnummer.classList.remove("error");
-    email.classList.remove("error");
-
-    if (fornavn.value.length < 2) {
-        errorMessages.push("Fornavn skal være mindst 2 karakterer.");
-        fornavn.classList.add("error");
-        isValid = false;
-    }
-    if (efternavn.value.length < 2) {
-        errorMessages.push("Efternavn skal være mindst 2 karakterer.");
-        efternavn.classList.add("error");
-        isValid = false;
-    }
-    if (adresse.value.length < 5) {
-        errorMessages.push("Adresse skal være mindst 5 karakterer.");
-        adresse.classList.add("error");
-        isValid = false;
-    }
-    if (!/^[0-9]+$/.test(postnummer.value)) {
-        errorMessages.push("Postnummer må kun indeholde tal.");
-        postnummer.classList.add("error");
-        isValid = false;
-    }
-    if (!emailPattern.test(email.value)) {
-        errorMessages.push("Indtast en gyldig e-mailadresse.");
-        email.classList.add("error");
-        isValid = false;
-    }
-
+    
+    errorMessages.push(validateField(fornavn, 2, "Fornavn skal være mindst 2 karakterer."));
+    errorMessages.push(validateField(efternavn, 2, "Efternavn skal være mindst 2 karakterer."));
+    errorMessages.push(validateField(adresse, 5, "Adresse skal være mindst 5 karakterer."));
+    errorMessages.push(validatePostnummer(postnummer));
+    errorMessages.push(validateEmail(email));
+    
+    errorMessages = errorMessages.filter(msg => msg !== "");
+    
     console.clear();
     console.log("Valideringsresultater:", errorMessages.length ? errorMessages : "Ingen fejl");
-
+    
     document.getElementById("errorMessages").innerHTML = errorMessages.join("<br>");
-
-    if (isValid) {
-        document.getElementById("formContainer").innerHTML = "<h2>Tak for informationen</h2>";
-    }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", validateForm);
+    });
+});
